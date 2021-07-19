@@ -12,10 +12,6 @@ def load_data(path=None, valid=True):
     if path is None:
         (x_train, _), (x_test, _) = load_mnist()
 
-        num = 10
-        x_train = x_train[: x_train.shape[0] // num]
-        x_test = x_test[: x_test.shape[0] // num]
-
         x_train = x_train.astype('float32') / 255.
         x_test = x_test.astype('float32') / 255.
 
@@ -27,6 +23,17 @@ def load_data(path=None, valid=True):
 
         x_train_noisy = tf.clip_by_value(x_train_noisy, clip_value_min=0., clip_value_max=1.)
         x_test_noisy = tf.clip_by_value(x_test_noisy, clip_value_min=0., clip_value_max=1.)
+
+        # sample
+        # ------------
+        # num = 10
+        # import cv2
+        # for img in x_train[:num]:
+        #     img = img + NOISE * tf.random.normal(img.shape)
+        #     img = tf.clip_by_value(img, clip_value_min=0., clip_value_max=1.)
+        #     img = img * 255
+        #     img = np.array(img)
+        #     cv2.imwrite(get_name(IMAGES_DIR, ".jpg"), img)
 
         return (x_train_noisy, x_train), (x_test_noisy, x_test)
 
@@ -68,8 +75,8 @@ def get_name(save_dir, file_type):
         os.mkdir(save_dir)
     for _, _, files in os.walk(save_dir):
         for file in files:
-            max_idx = max(max_idx, int(file[:len(file_type) - 2]))
-    return str(max_idx + 1) + file_type
+            max_idx = max(max_idx, int(file[:-len(file_type)]))
+    return os.path.join(save_dir, (str(max_idx + 1) + file_type))
 
 
 def plot_history(history):
@@ -84,5 +91,4 @@ def plot_history(history):
         plt.close()
     # define function pointer
     print(history.history.keys())
-    plot_one("accuracy")
     plot_one("loss")
