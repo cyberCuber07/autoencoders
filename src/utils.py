@@ -12,6 +12,11 @@ import cv2
 def load_data(path=None, valid=True):
     if path is None:
         # (x_train, _), (x_test, _) = load_mnist()
+        #
+        # for idx, _ in enumerate(x_train):
+        #     cv2.imwrite(os.path.join("train", str(idx) + ".jpg"), x_train[idx])
+        # for idx, _ in enumerate(x_test):
+        #     cv2.imwrite(os.path.join("test", str(idx) + ".jpg"), x_test[idx])
 
         x_train, x_test = [], []
         for idx in range(60000):
@@ -36,6 +41,9 @@ def load_data(path=None, valid=True):
 
         x_train_noisy = tf.clip_by_value(x_train_noisy, clip_value_min=0., clip_value_max=1.)
         x_test_noisy = tf.clip_by_value(x_test_noisy, clip_value_min=0., clip_value_max=1.)
+
+        x_train_noisy = np.array(x_train_noisy)
+        x_test_noisy = np.array(x_test_noisy)
 
         # sample
         # ------------

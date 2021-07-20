@@ -13,6 +13,7 @@ def main():
     history = autoencoder.fit(train_data[0], train_data[1],
                               epochs=EPOCHS,
                               shuffle=True,
+                              batch_size=BATCH_SIZE,
                               validation_data=(valid_data[0], valid_data[1]))
 
     plot_history(history)
@@ -24,13 +25,14 @@ if __name__ == "__main__":
     args.add_argument("--train", action="store_true", default=False)
     args.add_argument("--test", action="store_true", default=False)
     args.add_argument("--images", type=str, default="images")
-    args.add_argument("--weights", type=str, default="weights/1.h5")
+    args.add_argument("--weights", type=str, default="weights/4.h5")
     args = args.parse_args()
 
     if args.train:
         train_data, valid_data = load_data()
         autoencoder = __denoise__()
         autoencoder = autoencoder.model
+        autoencoder.summary()
         main()
 
     if args.test:
