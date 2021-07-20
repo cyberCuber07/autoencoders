@@ -1,22 +1,37 @@
-from tensorflow.keras.layers import Input, Conv2D, Conv2DTranspose
+from tensorflow.keras.layers import (Input, Conv2D, Conv2DTranspose,
+                                     BatchNormalization, ReLU, MaxPool2D)
 from tensorflow.keras.models import Model, Sequential
-from src.params import INPUT_SHAPE
+from src.params import *
+from icecream import ic
 
 
-class Denoise(Model):
-  def __init__(self):
-    super(Denoise, self).__init__()
-    self.encoder = Sequential([
-      Input(shape=INPUT_SHAPE),
-      Conv2D(16, (3, 3), activation='relu', padding='same', strides=2),
-      Conv2D(8, (3, 3), activation='relu', padding='same', strides=2)])
+class __denoise__:
+    def __init__(self):
+        self.intput_shape = INPUT_SHAPE
+        self.conv_num = CONV_NUM
+        self.model = self.create_model()
 
-    self.decoder = Sequential([
-      Conv2DTranspose(8, kernel_size=3, strides=2, activation='relu', padding='same'),
-      Conv2DTranspose(16, kernel_size=3, strides=2, activation='relu', padding='same'),
-      Conv2D(1, kernel_size=(3, 3), activation='sigmoid', padding='same')])
+    def conv_block(self, up, x, f, k, s, p=2):
+        if up:
+            x = Conv2DTranspose(filters=f, kernel_size=k, strides=s)(x)
+        else:
+            x = Conv2D(filters=f, kernel_size=k, strides=s)(x)
+        x = ReLU()(x)
+        # x = MaxPool2D(pool_size=(p, p))(x)
+        x = BatchNormalization()(x)
+        return x
 
-  def call(self, x):
-    encoded = self.encoder(x)
-    decoded = self.decoder(encoded)
-    return decoded
+    def create_model(self):
+        input = Input(self.intput_shape)
+        f_max = F_MAX
+        filters = [512, 256, 128, 64, 8, 8, 64, 128, 256, 512]
+        self.conv_num = len(filters) // 2
+        x = Conv2D(f_max, kernel_size=1, strides=1)(input)
+        for idx in range(self.conv_num):
+            f_max = f_max // 2
+            x = self.conv_block(False, x, filters[idx], 1, 2)
+        for idx in range(self.conv_num):
+            f_max *= 2
+            x = self.conv_block(True, x, filters[idx + self.conv_num], 1, 2)
+        output = Conv2DTranspose(1, 1, 1)(x)
+        return Model(input, output)

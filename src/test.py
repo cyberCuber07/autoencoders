@@ -1,13 +1,22 @@
 from src.params import INPUT_SHAPE, PREDICT_DIR
 from src.utils import get_name
-from tensorflow.keras.models import load_model
+from src.model import __denoise__
+from tensorflow.keras.models import load_model as lm
 import os
 import cv2
 from icecream import ic
 import tensorflow as tf
 import numpy as np
 
-"""CODE'S BROKEN"""
+
+"""code's working only for WEIGHTS now!!"""
+
+
+def load_model(model_weights):
+    model = __denoise__()
+    model = model.model
+    model.load_weights(model_weights)
+    return model
 
 
 def read_img(img_path, gray=True):
@@ -34,10 +43,11 @@ def load_imgs(imgs_path):
     return np.array(imgs)
 
 
-def test(model_path, imgs_path):
-    model = load_model(model_path)
+def test(model_weights, imgs_path):
+    model = load_model(model_weights)
     imgs = load_imgs(imgs_path)
 
-    for img in imgs:
-        prediction = model.predict(img)
-        cv2.imwrite(get_name(PREDICT_DIR, ".jpg"), prediction)
+    predictions = model.predict(imgs)
+    for prediciton in predictions:
+        prediciton = prediciton * 255.
+        cv2.imwrite(get_name(PREDICT_DIR, ".jpg"), prediciton)

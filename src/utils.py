@@ -6,11 +6,24 @@ from src.params import *
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+import cv2
 
 
 def load_data(path=None, valid=True):
     if path is None:
-        (x_train, _), (x_test, _) = load_mnist()
+        # (x_train, _), (x_test, _) = load_mnist()
+
+        x_train, x_test = [], []
+        for idx in range(60000):
+            img = cv2.imread(os.path.join("train", str(idx) + ".jpg"), cv2.IMREAD_GRAYSCALE)
+            img = cv2.resize(img, INPUT_SHAPE[:2])
+            x_train.append(img)
+        for idx in range(10000):
+            img = cv2.imread(os.path.join("test", str(idx) + ".jpg"), cv2.IMREAD_GRAYSCALE)
+            img = cv2.resize(img, INPUT_SHAPE[:2])
+            x_test.append(img)
+        x_train = np.array(x_train)
+        x_test = np.array(x_test)
 
         x_train = x_train.astype('float32') / 255.
         x_test = x_test.astype('float32') / 255.
@@ -26,14 +39,13 @@ def load_data(path=None, valid=True):
 
         # sample
         # ------------
-        # num = 10
-        # import cv2
-        # for img in x_train[:num]:
-        #     img = img + NOISE * tf.random.normal(img.shape)
-        #     img = tf.clip_by_value(img, clip_value_min=0., clip_value_max=1.)
-        #     img = img * 255
-        #     img = np.array(img)
-        #     cv2.imwrite(get_name(IMAGES_DIR, ".jpg"), img)
+        num = 10
+        for img in x_train[:num]:
+            img = img + NOISE * tf.random.normal(img.shape)
+            img = tf.clip_by_value(img, clip_value_min=0., clip_value_max=1.)
+            img = img * 255
+            img = np.array(img)
+            cv2.imwrite(get_name(IMAGES_DIR, ".jpg"), img)
 
         return (x_train_noisy, x_train), (x_test_noisy, x_test)
 
