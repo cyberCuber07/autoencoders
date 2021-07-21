@@ -1,6 +1,7 @@
 from src.__init__ import *
 from keras_preprocessing.image import ImageDataGenerator
 from src.params import *
+from src.utils import get_name
 import os
 import cv2
 import numpy as np
@@ -14,7 +15,7 @@ def get_dirs_num(path, name):
         return len(dirs)
 
 
-def get_training_batch(iter, path):
+def get_training_batch(iter, path, sample=False):
     """
     method to get specified batch of images
     directories are addressed using 'iter' variable
@@ -51,14 +52,28 @@ def get_training_batch(iter, path):
 
     x_train_noisy = x_train + NOISE * tf.random.normal(x_train.shape)
     x_train_noisy = tf.clip_by_value(x_train_noisy, clip_value_min=0., clip_value_max=1.)
+    x_train_noisy = np.array(x_train_noisy)
+
+    if sample:
+        num = 10
+        for idx in range(num):
+            img_path = get_name(IMAGES_DIR, ".jpg")
+            img = x_train_noisy[idx] * 255.
+            cv2.imwrite(img_path, img)
 
     return num_imgs, x_train_noisy, x_train
 
 
-def log(history, start_time):
+def log(epoch, history, start_time):
     total_time = time() - start_time
-    loss = float(history.history['loss'][0])
-    valid_loss = float(history.history['val_loss'][0])
-    print("------------------------------------------------------------------------")
-    print("Time it took: {:.2f}; loss={:.4f}; val_loss={:.4f}".format(total_time, loss, valid_loss))
-    print("------------------------------------------------------------------------")
+    loss = np.mean(np.array([float(one.history['loss'][0]) for one in history]))
+    val_loss = np.mean(np.array([float(one.history['val_loss'][0]) for one in history]))
+
+    info = "Epoch: {}; Time it took: {:.2f}; loss={:.4f}; val_loss={:.4f}".\
+        format(epoch, total_time, loss, val_loss)
+
+    print("------------------------------------------------------------------------", end='')
+    print("----------------------------------------")
+    print(info)
+    print("------------------------------------------------------------------------", end='')
+    print("----------------------------------------")

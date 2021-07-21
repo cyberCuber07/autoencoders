@@ -35,8 +35,8 @@ class Denoise:
         filters = self.get_filters()
         x = Conv2D(filters[0], kernel_size=1, strides=1)(input)
         for idx in range(self.conv_num):
-            x = self.conv_block(False, x, filters[idx], 1, 2)
+            x = self.conv_block(False, x, filters[idx], 5, 1)
         for idx in range(self.conv_num):
-            x = self.conv_block(True, x, filters[idx + self.conv_num], 1, 2)
+            x = self.conv_block(True, x, filters[idx + self.conv_num], 5, 1)
         output = Conv2DTranspose(1, 1, 1)(x)
         return Model(input, output)

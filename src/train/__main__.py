@@ -14,21 +14,23 @@ def main():
 
     for epoch in range(EPOCHS):
         num_iter = get_dirs_num(args.path, "train")
-        for iter in range(num_iter):
-            num_imgs, x_train_noisy, x_train = get_training_batch(iter, args.path)
-            start_time = time()
-            history = autoencoder.fit(x_train_noisy, x_train,
+        history = []
+        start_time = time()
+        for iter in tqdm(range(num_iter), bar_format='{l_bar}{bar:80}{r_bar}{bar:-10b}'):
+            num_imgs, x_train_noisy, x_train = get_training_batch(iter, args.path, True)
+            history_tmp = autoencoder.fit(x_train_noisy, x_train,
                                       epochs=1,
                                       shuffle=True,
                                       batch_size=SMALL_BATCH_SIZE,
                                       validation_split=VALIDATION_SPLIT,
-                                      verbose=1)
+                                      verbose=0)
+            history.append(history_tmp)
 
-        log(history, start_time)
-        plot_history(history)
-
+        log(epoch + 1, history, start_time)
         if epoch % 5 == 0:
             autoencoder.save_weights(get_name(WEIGHTS_DIR, ".h5"))
+
+    autoencoder.save_weights(get_name(WEIGHTS_DIR, ".h5"))
 
 
 if __name__ == "__main__":
