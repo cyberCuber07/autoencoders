@@ -1,6 +1,6 @@
 from src.params import INPUT_SHAPE, PREDICT_DIR
 from src.utils import get_name
-from src.model import __denoise__
+from src.model import Denoise
 from tensorflow.keras.models import load_model as lm
 import os
 import cv2
@@ -13,7 +13,7 @@ import numpy as np
 
 
 def load_model(model_weights):
-    model = __denoise__()
+    model = Denoise()
     model = model.model
     model.load_weights(model_weights)
     return model

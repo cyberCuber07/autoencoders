@@ -1,9 +1,11 @@
-
+from src.__init__ import *
 from tensorflow.keras.losses import MeanSquaredError, CategoricalCrossentropy
 from tensorflow.keras.optimizers import Adam
 
 
-INPUT_SHAPE = (32, 32, 1)
+INPUT_SHAPE = (256, 256)
+CHANNELS = 1
+COLOR_MODE = {1: "grayscale", 3: "rgb"} # needed for image generator
 CLASS_MODE = "categorical"
 NOISE = 0.2
 
@@ -16,6 +18,7 @@ OPTIMIZER = Adam(lr=LR)
 
 EPOCHS = 3
 BATCH_SIZE = 200
+SMALL_BATCH_SIZE = 2
 
 
 WEIGHTS_DIR = "weights"

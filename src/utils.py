@@ -1,3 +1,4 @@
+from src.__init__ import *
 import os
 import numpy as np
 from tensorflow.keras.datasets.mnist import load_data as load_mnist
@@ -60,8 +61,8 @@ def load_data(path=None, valid=True):
     else:
         validation_generator = None
         if valid:
-            valid_path = path[1]
-            path = path[0]
+            valid_path = os.path.join(path, "valid")
+            path = os.path.join(path, "train")
 
         datagen = ImageDataGenerator(
             rescale=1. / 255,
@@ -76,6 +77,7 @@ def load_data(path=None, valid=True):
             target_size=INPUT_SHAPE,
             batch_size=BATCH_SIZE,
             class_mode=CLASS_MODE,
+            color_mode=COLOR_MODE[CHANNELS],
             shuffle=True)
 
         if valid:
@@ -85,6 +87,7 @@ def load_data(path=None, valid=True):
                 target_size=INPUT_SHAPE,
                 batch_size=BATCH_SIZE,
                 class_mode=CLASS_MODE,
+                color_mode=COLOR_MODE[CHANNELS],
                 shuffle=False)
         return data_generator, validation_generator
 
@@ -99,7 +102,7 @@ def get_name(save_dir, file_type):
     return os.path.join(save_dir, (str(max_idx + 1) + file_type))
 
 
-def plot_history(history):
+def plot_history(history=None):
     def plot_one(type):
         plt.plot(history.history[type])
         plt.plot(history.history['val_' + type])
@@ -110,5 +113,7 @@ def plot_history(history):
         plt.savefig(get_name(FIGURE_DIR, ".jpg"))
         plt.close()
     # define function pointer
+    if history is None:
+        return
     print(history.history.keys())
     plot_one("loss")
