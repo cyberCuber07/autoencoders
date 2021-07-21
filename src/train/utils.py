@@ -5,6 +5,7 @@ import os
 import cv2
 import numpy as np
 import tensorflow as tf
+from time import time
 
 
 def get_dirs_num(path, name):
@@ -52,3 +53,12 @@ def get_training_batch(iter, path):
     x_train_noisy = tf.clip_by_value(x_train_noisy, clip_value_min=0., clip_value_max=1.)
 
     return num_imgs, x_train_noisy, x_train
+
+
+def log(history, start_time):
+    total_time = time() - start_time
+    loss = float(history.history['loss'][0])
+    valid_loss = float(history.history['val_loss'][0])
+    print("------------------------------------------------------------------------")
+    print("Time it took: {:.2f}; loss={:.4f}; val_loss={:.4f}".format(total_time, loss, valid_loss))
+    print("------------------------------------------------------------------------")

@@ -1,28 +1,30 @@
 from src.__init__ import *
 from src.model import Denoise
-from src.train.utils import get_training_batch, get_dirs_num
+from src.train.utils import get_training_batch, get_dirs_num, log
 from src.params import *
 from src.utils import plot_history, get_name
 import argparse
 import os
 from tqdm import tqdm
+from time import time
 
 
 def main():
     autoencoder.compile(optimizer=OPTIMIZER, loss=LOSS)
 
     for epoch in range(EPOCHS):
-        names = ['train', 'valid']
         num_iter = get_dirs_num(args.path, "train")
-        for iter in tqdm(range(num_iter)):
+        for iter in range(num_iter):
             num_imgs, x_train_noisy, x_train = get_training_batch(iter, args.path)
+            start_time = time()
             history = autoencoder.fit(x_train_noisy, x_train,
                                       epochs=1,
                                       shuffle=True,
                                       batch_size=SMALL_BATCH_SIZE,
                                       validation_split=VALIDATION_SPLIT,
-                                      verbose=0)
+                                      verbose=1)
 
+        log(history, start_time)
         plot_history(history)
 
         if epoch % 5 == 0:
