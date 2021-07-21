@@ -5,7 +5,6 @@ from tensorflow.keras.optimizers import Adam
 
 INPUT_SHAPE = (256, 256)
 CHANNELS = 1
-COLOR_MODE = {1: "grayscale", 3: "rgb"} # needed for image generator
 CLASS_MODE = "categorical"
 NOISE = 0.2
 
@@ -16,6 +15,7 @@ LR = 10 ** -3
 OPTIMIZER = Adam(lr=LR)
 
 
+VALIDATION_SPLIT = 0.2
 EPOCHS = 3
 BATCH_SIZE = 200
 SMALL_BATCH_SIZE = 2

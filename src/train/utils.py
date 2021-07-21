@@ -2,50 +2,53 @@ from src.__init__ import *
 from keras_preprocessing.image import ImageDataGenerator
 from src.params import *
 import os
+import cv2
+import numpy as np
+import tensorflow as tf
 
 
-def get_imgs_num(path, names):
-    cnt = 0
-    for name in names:
-        type_path = os.path.join(path, name)
-        for _, _, files in os.walk(type_path):
-            cnt += len(files)
-    return cnt
+def get_dirs_num(path, name):
+    type_path = os.path.join(path, name)
+    for _, dirs, _ in os.walk(type_path):
+        return len(dirs)
 
 
-def get_training_batch(iter, path, valid=True):
+def get_training_batch(iter, path):
     """
     method to get specified batch of images
     directories are addressed using 'iter' variable
     """
-    validation_generator = None
-    if valid:
-        valid_path = os.path.join(path, "valid", str(iter))
-        path = os.path.join(path, "train", str(iter))
+    def get_imgs_num(_path):
+        for _, _, files in os.walk(_path):
+            return len(files)
 
-    datagen = ImageDataGenerator(
-        rescale=1. / 255,
-        rotation_range=30,
-        width_shift_range=0.3,
-        height_shift_range=0.3,
-        horizontal_flip=True,
-        fill_mode='nearest')
+    def read_img(img_path):
+        if CHANNELS == 3:
+            img = cv2.imread(img_path)
+        elif CHANNELS == 1:
+            img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+        return cv2.resize(img, INPUT_SHAPE)
 
-    data_generator = datagen.flow_from_directory(
-        path,
-        target_size=INPUT_SHAPE,
-        batch_size=BATCH_SIZE,
-        class_mode=CLASS_MODE,
-        color_mode=COLOR_MODE[CHANNELS],
-        shuffle=True)
+    def read_imgs():
+        x_train = []
+        for _, _, files in os.walk(path):
+            for _file in files:
+                img_path = os.path.join(path, _file)
+                img = read_img(img_path)
+                x_train.append(img)
 
-    if valid:
-        validation_datagen = ImageDataGenerator(rescale=1. / 255)
-        validation_generator = validation_datagen.flow_from_directory(
-            valid_path,
-            target_size=INPUT_SHAPE,
-            batch_size=BATCH_SIZE,
-            class_mode=CLASS_MODE,
-            color_mode=COLOR_MODE[CHANNELS],
-            shuffle=False)
-    return data_generator, validation_generator
+        x_train = np.array(x_train)
+        if CHANNELS == 1:
+            x_train = x_train.reshape((x_train.shape[0], x_train.shape[1], x_train.shape[2], 1))
+
+        x_train = x_train.astype('float32') / 255.
+        return x_train
+
+    path = os.path.join(path, "train", str(iter))
+    num_imgs = get_imgs_num(path)
+    x_train = read_imgs()
+
+    x_train_noisy = x_train + NOISE * tf.random.normal(x_train.shape)
+    x_train_noisy = tf.clip_by_value(x_train_noisy, clip_value_min=0., clip_value_max=1.)
+
+    return num_imgs, x_train_noisy, x_train
