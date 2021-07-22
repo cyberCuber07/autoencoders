@@ -37,7 +37,7 @@ resulting directory tree:
 """
 
 
-NAMES = ['valid', 'test']
+NAMES = ['train', 'test']
 TEMP_DIR = './.tmp_data'
 
 

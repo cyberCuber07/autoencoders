@@ -6,7 +6,8 @@ import os
 import cv2
 import numpy as np
 import tensorflow as tf
-from time import time
+import time
+from contextlib import redirect_stdout
 
 
 def get_dirs_num(path, name):
@@ -64,8 +65,29 @@ def get_training_batch(iter, path, sample=False):
     return num_imgs, x_train_noisy, x_train
 
 
+def summary2file(model, name, _type):
+    name = name.split("/")[-1][:-len(_type)]
+    save_dir = os.path.join(SUMMARY_DIR, name)
+    imgs_dir = os.path.join(save_dir, "imgs")
+    if not os.path.isdir(save_dir):
+        os.mkdir(save_dir)
+    if not os.path.isdir(imgs_dir):
+        os.mkdir(imgs_dir)
+    with open(os.path.join(save_dir, 'summary.txt'), 'w') as f:
+        with redirect_stdout(f):
+            model.summary()    # main()
+    return save_dir
+
+
 def log(epoch, history, start_time):
-    total_time = time() - start_time
+    def conv_time():
+        full_time = int(time.time() - start_time)
+        if full_time <= 3600:
+            return time.strftime('%M:%S', time.gmtime(full_time))
+        else:
+            return time.strftime('%H:%M:%S', time.gmtime(full_time))
+
+    total_time = conv_time()
     loss = np.mean(np.array([float(one.history['loss'][0]) for one in history]))
     val_loss = np.mean(np.array([float(one.history['val_loss'][0]) for one in history]))
 
