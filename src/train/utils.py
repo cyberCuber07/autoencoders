@@ -53,7 +53,14 @@ def get_training_batch(iter, path, sample=False):
 
     x_train_noisy = x_train + NOISE * tf.random.normal(x_train.shape)
     x_train_noisy = tf.clip_by_value(x_train_noisy, clip_value_min=0., clip_value_max=1.)
-    x_train_noisy = np.array(x_train_noisy)
+
+
+    tmp = tf.__version__
+    if tmp[0] == '1':
+        x_train_noisy = tf.Session().run(x_train_noisy)
+    elif tmp[1] == '2':
+        x_train_noisy = x_train_noisy.numpy()
+    ic(x_train_noisy.shape)
 
     if sample:
         num = 10
