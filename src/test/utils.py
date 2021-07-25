@@ -1,6 +1,5 @@
 from src.__init__ import *
-from src.params import INPUT_SHAPE, PREDICT_DIR
-from src.utils import get_name
+from src.params import INPUT_SHAPE
 from src.model import Denoise
 import os
 import cv2
@@ -40,13 +39,3 @@ def load_imgs(imgs_path):
             img = read_img(os.path.join(imgs_path, file))
             imgs.append(img)
     return np.array(imgs)
-
-
-def main(model_weights, imgs_path):
-    model = load_model(model_weights)
-    imgs = load_imgs(imgs_path)
-
-    predictions = model.predict(imgs)
-    for prediciton in predictions:
-        prediciton = prediciton * 255.
-        cv2.imwrite(get_name(PREDICT_DIR, ".jpg"), prediciton)

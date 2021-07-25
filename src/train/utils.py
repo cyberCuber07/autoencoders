@@ -60,7 +60,6 @@ def get_training_batch(iter, path, sample=False):
         x_train_noisy = tf.Session().run(x_train_noisy)
     elif tmp[1] == '2':
         x_train_noisy = x_train_noisy.numpy()
-    ic(x_train_noisy.shape)
 
     if sample:
         num = 10
@@ -98,7 +97,7 @@ def log(epoch, history, start_time):
     loss = np.mean(np.array([float(one.history['loss'][0]) for one in history]))
     val_loss = np.mean(np.array([float(one.history['val_loss'][0]) for one in history]))
 
-    info = "Epoch: {}; Time it took: {:.2f}; loss={:.4f}; val_loss={:.4f}".\
+    info = "Epoch: {}; Time it took: {}; loss={:.4f}; val_loss={:.4f}".\
         format(epoch, total_time, loss, val_loss)
 
     print("------------------------------------------------------------------------", end='')

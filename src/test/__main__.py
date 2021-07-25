@@ -1,5 +1,18 @@
-from src.test.utils import main
+from src.test.utils import load_imgs, load_model
+from src.params import PREDICT_DIR
+from src.utils import get_name
 import argparse
+import cv2
+
+
+def main(model_weights, imgs_path):
+    model = load_model(model_weights)
+    imgs = load_imgs(imgs_path)
+
+    predictions = model.predict(imgs)
+    for prediciton in predictions:
+        prediciton = prediciton * 255.
+        cv2.imwrite(get_name(PREDICT_DIR, ".jpg"), prediciton)
 
 
 if __name__ == "__main__":
